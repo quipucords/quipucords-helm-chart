@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-log-volume-claim
+  labels:
+    {{- include "discovery.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.pvc.log.requestStorage }}

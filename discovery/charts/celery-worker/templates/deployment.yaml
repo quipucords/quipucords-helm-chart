@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "celery-worker.fullname" . }}
+  labels:
+    {{- include "celery-worker.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.autoscaling.minReplicas }}
+  selector:
+    matchLabels:
+      {{- include "celery-worker.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "celery-worker.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccount: {{ include "discovery.globalServiceAccountName" . }}
+      serviceAccountName: {{ include "discovery.globalServiceAccountName" . }}
+      restartPolicy: Always
+      volumes:
+      - name: {{ .Release.Name }}-data-volume-claim
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-data-volume-claim
+      - name: {{ .Release.Name }}-log-volume-claim
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-log-volume-claim
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "/bin/sh", "-c", "/deploy/entrypoint_celery_worker.sh" ]
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          volumeMounts:
+          - mountPath: /var/data
+            name: {{ .Release.Name }}-data-volume-claim
+          - mountPath: /var/log
+            name: {{ .Release.Name }}-log-volume-claim
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'ps axo command | grep -v grep | grep /opt/venv/bin/python | grep worker'
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 5
+            failureThreshold: 5
+            successThreshold: 1
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'ps axo command | grep -v grep | grep /opt/venv/bin/python | grep worker'
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 3
+            successThreshold: 1
+          env:
+            - name: ANSIBLE_REMOTE_TMP
+              value: {{ .Values.ansible.remoteTmp }}
+            - name: ANSIBLE_LOCAL_TEMP
+              value: {{ .Values.ansible.localTemp }}
+            - name: DJANGO_SECRET_PATH
+              value: {{ .Values.global.djangoSecretPath }}
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: django-secret-key
+                  name: {{ .Release.Name }}-secrets
+            - name: REDIS_HOST
+              value: {{ include "discovery.redis-host" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.global.redisPassword }}
+            - name: QPC_ENABLE_CELERY_SCAN_MANAGER
+              value: {{ .Values.global.enableCeleryScanManager | quote }}
