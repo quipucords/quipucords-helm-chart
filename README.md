@@ -4,6 +4,11 @@ Helm Chart for the Discovery product.
 
 Install and Uninstall the Discovery product to OpenShift and Kubernetes via the `helm` command-line tool which must be installed as a prerequisite.
 
+This Helm Chart has been deployed to the following environments:
+- [x] OpenShift 4.13.12
+- [x] CRC Local 2.27 / OpenShift 4.13.12 / Podman 4.4.4
+
+
 The Helm chart lives in the `discovery` subdirectory and can be installed as follows to use the default `discovery` name:
 
 First login to OpenShift and set your working Namespace/Project for `discovery`:
