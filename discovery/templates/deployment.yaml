@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "discovery.serverFullname" . }}
+  labels:
+    {{- include "discovery.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "discovery.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "discovery.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      serviceAccountName: {{ include "discovery.globalServiceAccountName" . }}
+      containers:
+        - name: {{ include "discovery.serverFullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          livenessProbe:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - 'ps axo command | grep -v grep | grep gunicorn'
+              failureThreshold: 3
+              initialDelaySeconds: 5
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+          readinessProbe:
+              httpGet:
+                path: /api/v1/status/
+                port: {{ .Values.service.port }}
+                scheme: HTTPS
+                httpHeaders:
+                  - name: Host
+                    value: {{ include "discovery.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+              failureThreshold: 5
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /var/data
+            name: {{ .Release.Name }}-data-volume-claim
+          - mountPath: /var/log
+            name: {{ .Release.Name }}-log-volume-claim
+          env:
+            - name: ANSIBLE_REMOTE_TMP
+              value: {{ .Values.ansible.remoteTmp }}
+            - name: ANSIBLE_LOCAL_TEMP
+              value: {{ .Values.ansible.localTemp }}
+            - name: ANSIBLE_LOG_LEVEL
+              value: {{ .Values.ansible.logLevel | quote }}
+            - name: DJANGO_SECRET_PATH
+              value: {{ .Values.global.djangoSecretPath }}
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: django-secret-key
+                  name: {{ .Release.Name }}-secrets
+            - name: QPC_DBMS
+              value: "postgres"
+            - name: QPC_DBMS_DATABASE
+              value: {{ .Values.db.postgresql.database }}
+            - name: QPC_DBMS_HOST
+              value: {{ include "discovery.db-host" . }}
+            - name: QPC_DBMS_PASSWORD
+              value: {{ .Values.db.postgresql.password }}
+            - name: QPC_DBMS_PORT
+              value: {{ .Values.db.service.port | quote }}
+            - name: QPC_DBMS_USER
+              value: {{ .Values.db.postgresql.user }}
+            - name: QPC_SERVER_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: QPC_SERVER_TIMEOUT
+              value: {{ .Values.server.timeout | quote }}
+            - name: QPC_SERVER_USERNAME
+              value: {{ .Values.server.username }}
+            - name: QPC_SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: server-password
+                  name: {{ .Release.Name }}-secrets
+            - name: NETWORK_CONNECT_JOB_TIMEOUT
+              value: {{ .Values.network.connect.jobTimeout | quote}}
+            - name: NETWORK_INSPECT_JOB_TIMEOUT
+              value: {{ .Values.network.inspect.jobTimeout | quote}}
+            - name: QPC_DEBUGPY
+              value: {{ .Values.server.debugpy | quote }}
+            - name: QPC_LOG_ALL_ENV_VARS_AT_STARTUP
+              value: {{ .Values.server.log.allEnvVarsAtStartup | quote }}
+            - name: REDIS_HOST
+              value: {{ include "discovery.redis-host" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.global.redisPassword }}
+            - name: QPC_ENABLE_CELERY_SCAN_MANAGER
+              value: {{ .Values.global.enableCeleryScanManager | quote }}
+      volumes:
+      - name: {{ .Release.Name }}-data-volume-claim
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-data-volume-claim
+      - name: {{ .Release.Name }}-log-volume-claim
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-log-volume-claim
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

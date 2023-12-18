@@ -1,0 +1,63 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "properties": {
+        "server": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "minLength": 10,
+                    "pattern": "^.*[a-zA-Z]+.*$",
+                    "not": {
+                        "enum": [
+                            "qpcpassw0rd",
+                            "dscpassw0rd"
+                        ]
+                    }
+                },
+                "djangoSecretKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "celery-worker": {
+            "type": "object",
+            "properties": {
+                "autoscaling": {
+                    "type": "object",
+                    "properties": {
+                        "minReplicas": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 32
+                        }
+                    }
+                }
+            }
+        },
+        "network": {
+            "type": "object",
+            "properties": {
+                "connect": {
+                    "type": "object",
+                    "properties": {
+                        "jobTimeout": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "inspect": {
+                    "type": "object",
+                    "properties": {
+                        "jobTimeout": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

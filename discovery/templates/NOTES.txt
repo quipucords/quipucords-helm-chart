@@ -1,0 +1,12 @@
+
+Discovery Deployment:
+
+        NAMESPACE: {{ .Release.Namespace }}
+          RELEASE: {{ .Release.Name }}
+       CHART NAME: {{ .Chart.Name }}
+    CHART VERSION: {{ .Chart.Version }}
+      APP VERSION: {{ .Chart.AppVersion }}
+
+To get the Discovery Console URL run the following commands:
+
+    echo "https://$(kubectl --namespace {{ .Release.Namespace }} get route/{{ .Release.Name }} -o 'jsonpath={.spec.host}')"
