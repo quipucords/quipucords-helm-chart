@@ -1,4 +1,4 @@
-# Quipucords Deployer
+# Quipucords Helm Chart
 
 Helm Chart for the Discovery product.
 
@@ -82,21 +82,40 @@ $ helm install discovery ./discovery \
     --set global.imagePullSecrets[0].name=alternate-discovery-pull-secret
 ```
 
+Other than the generated names by Helm, custom Discovery release names can be used as follows:
+
+```
+$ helm install discovery-dev ./discovery \
+    --set server.password="EXAMPLE-superadmin1"
+...
+$ helm install discovery-qe ./discovery \
+    --set server.password="EXAMPLE-testadmin1"
+...
+```
+
+And can be uninstalled by their given names:
+
+```
+$ helm uninstall discovery-dev discovery-qe
+```
+
 For development use cases a simple `Makefile` is provided as a wrapper to helm.
 
 ```
 $ make
 Makefile for the Discovery Helm Chart.
 
-Optional parameters for install directivees:
-  SERVER_PASSWORD=...
-
 Make targets:
   help                       Shows this output.
   dry-run                    Does a dry-run Installation and sends generated object to standard output.
   install <params>           Installs Discovery onto the current namespace.
-  install-instance <params>  Installs Discovery with a unique name onto the current namespace.
+     <params> = NAME=... SERVER_PASSWORD=...
+
+  install-unique <params>    Installs Discovery with a unique generated name onto the current namespace.
+     <params> = SERVER_PASSWORD=...
+
   lint                       Run Lint against the Discovery Chart
   ls                         Show the installed Discovery helm charts.
-  uninstall                  Uninstalls Discovery from the current namespace.
+  uninstall <params>         Uninstalls Discovery from the current namespace.
+     <params> = NAME=...
 ```
