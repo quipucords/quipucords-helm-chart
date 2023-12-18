@@ -112,6 +112,7 @@ Makefile for the Discovery Helm Chart.
 
 Make targets:
   help                       Shows this output.
+  create-pull-secret         Creates a Discovery image pull secret.
   dry-run                    Does a dry-run Installation and sends generated object to standard output.
   install <params>           Installs Discovery onto the current namespace.
      <params> = NAME=... SERVER_PASSWORD=...
