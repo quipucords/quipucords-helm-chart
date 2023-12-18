@@ -24,7 +24,7 @@ version: 0.9.1
 appVersion: "1.4.5"
 
 # The Discovery Product Icon
-icon: https://abellotti.github.io/quipucords-helm-repo/charts/discovery/icon.png
+icon: https://quipucords.github.io/quipucords-helm-repo/charts/discovery/icon.png
 
 # The Chart dependencies
 dependencies:
