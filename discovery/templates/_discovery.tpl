@@ -25,3 +25,14 @@ Define the cluster local fully qualified host for redis
 {{- define "discovery.redis-host" -}}
 {{ printf "%s-redis.%s.svc.cluster.local" (.Release.Name) (.Release.Namespace) }}
 {{- end }}
+
+{{/*
+Define the boolean to tell us if we're targetting OpenShift
+*/}}
+{{- define "discovery.isOpenShift" -}}
+{{- if .Capabilities.APIVersions.Has "route.openshift.io/v1" -}}
+{{ printf "true" }}
+{{- else -}}
+{{ printf "false" }}
+{{- end }}
+{{- end }}
