@@ -45,7 +45,7 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           volumeMounts:
-          - mountPath: /var/lib/psql/data
+          - mountPath: /var/lib/pgsql/data
             name: {{ .Release.Name }}-data-volume-claim
           readinessProbe:
             exec:
