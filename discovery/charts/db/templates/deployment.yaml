@@ -31,9 +31,9 @@ spec:
       serviceAccountName: {{ include "discovery.globalServiceAccountName" . }}
       restartPolicy: Always
       volumes:
-      - name: {{ .Release.Name }}-data-volume-claim
+      - name: {{ .Release.Name }}-db-volume-claim
         persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-data-volume-claim
+          claimName: {{ .Release.Name }}-db-volume-claim
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -46,7 +46,7 @@ spec:
               protocol: TCP
           volumeMounts:
           - mountPath: /var/lib/pgsql/data
-            name: {{ .Release.Name }}-data-volume-claim
+            name: {{ .Release.Name }}-db-volume-claim
           readinessProbe:
             exec:
               command: [ "/bin/pg_isready", "-U", "postgres" ]
