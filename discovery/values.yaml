@@ -118,6 +118,7 @@ celery-worker:
     localTemp: "/var/data/tmp/ansible/local"
   autoscaling:
     minReplicas: 3
+    maxReplicas: 32
   resources:
     requests:
       cpu: 200m
