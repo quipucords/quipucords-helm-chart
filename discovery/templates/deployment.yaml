@@ -71,6 +71,9 @@ spec:
             name: {{ .Release.Name }}-data-volume-claim
           - mountPath: /var/log
             name: {{ .Release.Name }}-log-volume-claim
+          - mountPath: /etc/ssl/qpc
+            name: {{ .Release.Name }}-data-volume-claim
+            subPath: certs
           env:
             - name: ANSIBLE_REMOTE_TMP
               value: {{ .Values.ansible.remoteTmp }}
@@ -94,7 +97,7 @@ spec:
             - name: QPC_DBMS_PASSWORD
               value: {{ .Values.db.postgresql.password }}
             - name: QPC_DBMS_PORT
-              value: {{ .Values.db.service.port | quote }}
+              value: {{ .Values.global.dbPort | quote }}
             - name: QPC_DBMS_USER
               value: {{ .Values.db.postgresql.user }}
             - name: QPC_SERVER_PORT
@@ -118,6 +121,8 @@ spec:
               value: {{ .Values.server.log.allEnvVarsAtStartup | quote }}
             - name: REDIS_HOST
               value: {{ include "discovery.redis-host" . }}
+            - name: REDIS_PORT
+              value: {{ .Values.global.redisPort | quote }}
             - name: REDIS_PASSWORD
               value: {{ .Values.global.redisPassword }}
             - name: QPC_ENABLE_CELERY_SCAN_MANAGER

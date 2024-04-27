@@ -138,8 +138,6 @@ redis:
       drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
-  service:
-    port: "6379"
 
 # Discovery PostgreSQL Sub-chart
 db:
@@ -152,8 +150,6 @@ db:
       drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
-  service:
-    port: "5432"
   postgresql:
     database: "qpc"
     user: "qpc"
@@ -163,6 +159,10 @@ db:
 global:
   # the Redis service password
   redisPassword: "qpc"
+  # the Redis service port
+  redisPort: "6379"
+  # the Db service port
+  dbPort: "5432"
   # The pullSecret for the discovery
   imagePullSecrets:
   - name: discovery-pull-secret

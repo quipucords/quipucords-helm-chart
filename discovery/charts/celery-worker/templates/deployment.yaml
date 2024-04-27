@@ -84,8 +84,14 @@ spec:
                 secretKeyRef:
                   key: django-secret-key
                   name: {{ .Release.Name }}-secrets
+            - name: QPC_DBMS_HOST
+              value: {{ include "discovery.db-host" . }}
+            - name: QPC_DBMS_PORT
+              value: {{ .Values.global.dbPort | quote }}
             - name: REDIS_HOST
               value: {{ include "discovery.redis-host" . }}
+            - name: REDIS_PORT
+              value: {{ .Values.global.redisPort | quote }}
             - name: REDIS_PASSWORD
               value: {{ .Values.global.redisPassword }}
             - name: QPC_ENABLE_CELERY_SCAN_MANAGER
