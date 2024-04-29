@@ -117,15 +117,18 @@ celery-worker:
     remoteTmp: "/var/data/tmp/ansible/remote"
     localTemp: "/var/data/tmp/ansible/local"
   autoscaling:
+    enabled: true
     minReplicas: 3
-    maxReplicas: 32
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
   resources:
     requests:
       cpu: 200m
-      memory: 512Mi
+      memory: 1536Mi
     limits:
       cpu: 400m
-      memory: 1024Mi
+      memory: 2048Mi
 
 # Discovery REDIS Sub-chart
 redis:
