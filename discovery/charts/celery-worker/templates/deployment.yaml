@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "celery-worker.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.autoscaling.minReplicas }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "celery-worker.selectorLabels" . | nindent 6 }}
@@ -57,21 +57,22 @@ spec:
                 - /bin/sh
                 - -c
                 - 'ps axo command | grep -v grep | grep /opt/venv/bin/python | grep worker'
+            failureThreshold: 3
             initialDelaySeconds: 30
-            timeoutSeconds: 5
-            periodSeconds: 5
-            failureThreshold: 5
+            periodSeconds: 10
             successThreshold: 1
+            timeoutSeconds: 1
           readinessProbe:
             exec:
               command:
                 - /bin/sh
                 - -c
                 - 'ps axo command | grep -v grep | grep /opt/venv/bin/python | grep worker'
+            failureThreshold: 3
             initialDelaySeconds: 20
-            timeoutSeconds: 5
-            periodSeconds: 3
+            periodSeconds: 10
             successThreshold: 1
+            timeoutSeconds: 1
           env:
             - name: ANSIBLE_REMOTE_TMP
               value: {{ .Values.ansible.remoteTmp }}
