@@ -74,6 +74,9 @@ spec:
           - mountPath: /etc/ssl/qpc
             name: {{ .Release.Name }}-data-volume-claim
             subPath: certs
+          - mountPath: /sshkeys
+            name: {{ .Release.Name }}-data-volume-claim
+            subPath: sshkeys
           env:
             - name: ANSIBLE_REMOTE_TMP
               value: {{ .Values.ansible.remoteTmp }}

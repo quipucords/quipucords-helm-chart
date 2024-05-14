@@ -49,6 +49,9 @@ spec:
             name: {{ .Release.Name }}-data-volume-claim
           - mountPath: /var/log
             name: {{ .Release.Name }}-log-volume-claim
+          - mountPath: /sshkeys
+            name: {{ .Release.Name }}-data-volume-claim
+            subPath: sshkeys
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
