@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: "quay.io/quipucords/quipucords"
-  tag: "1.7.0"
+  tag: "1.9.4"
   pullPolicy: Always
 
 # The image for the Discovery server
@@ -104,7 +104,7 @@ ansible:
 celery-worker:
   image:
     repository: "quay.io/quipucords/quipucords"
-    tag: "1.7.0"
+    tag: "1.9.4"
     pullPolicy: Always
   podSecurityContext:
     runAsNonRoot: true
@@ -118,7 +118,7 @@ celery-worker:
     localTemp: "/var/data/tmp/ansible/local"
   autoscaling:
     enabled: true
-    minReplicas: 3
+    minReplicas: 1
     maxReplicas: 8
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
@@ -172,4 +172,4 @@ global:
   # The path for the Django secret
   djangoSecretPath: "/var/data/secret.txt"
   # Enable Celery Scan Manager
-  enableCeleryScanManager: "0"
+  enableCeleryScanManager: "1"

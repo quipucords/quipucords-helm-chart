@@ -16,7 +16,7 @@ fullnameOverride: ""
 
 autoscaling:
   enabled: true
-  minReplicas: 3
+  minReplicas: 1
   maxReplicas: 8
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
